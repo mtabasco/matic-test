@@ -3,12 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@biconomy/mexa": "^1.5.12",
+    "@maticnetwork/maticjs": "2.0.0-beta.12",
+    "@maticnetwork/meta": "^2.3.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "@types/node": "^14.0.14",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "web3": "^1.2.9"
   },
   "scripts": {
     "start": "react-scripts start",
