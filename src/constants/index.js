@@ -1,6 +1,8 @@
 import ROOT_CHAIN_MANAGER from "./artifacts/RootChainManager.json";
 import CHILD_CHAIN_MANAGER from "./artifacts/ChildChainManager.json";
 import CHILD_TOKEN from "./artifacts/ChildToken.json";
+import PLATFORM_SPN from "./artifacts/SapienPlatformSPN.json";
+import STAKING_CONTRACT from "./artifacts/SapienStaking.json";
 import ROOT_TOKEN from "./artifacts/DummyToken.json";
 import CHILD_ETH_TOKEN from "./artifacts/MaticWETH.json";
 import ERC20 from "./abi/ERC20.json";
@@ -14,6 +16,8 @@ export const ERC20_ABI = ERC20;
 export const ROOT_CHAIN_MANAGER_ABI = ROOT_CHAIN_MANAGER.abi;
 export const CHILD_CHAIN_MANAGER_ABI = CHILD_CHAIN_MANAGER.abi;
 export const CHILD_TOKEN_ABI = CHILD_TOKEN.abi;
+export const PLATFORM_SPN_ABI = PLATFORM_SPN.abi;
+export const STAKING_CONTRACT_ABI = STAKING_CONTRACT.abi;
 export const ROOT_TOKEN_ABI = ROOT_TOKEN.abi;
 export const CHILD_ETH_TOKEN_ABI = CHILD_ETH_TOKEN.abi;
 
