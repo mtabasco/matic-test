@@ -6,6 +6,7 @@ import {
   transfer,
   burn,
   transferWithPurpose,
+  getPlatformSPNBalance,
   stake,
   unstake,
   getStake
@@ -37,6 +38,10 @@ function App() {
         <button
           onClick={() => transferWithPurpose()}
         >TRANSFER WITH PURPOSE</button>
+        <br />
+        <button
+          onClick={() => getPlatformSPNBalance()}
+        >PLATFORM SPN BALANCE</button>
         <br />
         <button
           onClick={() => stake()}

@@ -100,7 +100,7 @@ export const getStakeContractDetails = async (web3, pAddress) => {
   let domainData = {
     name: 'SapienStaking',
     version: "1",
-    chainId: "3", // 3 Ropsten as its hardcoded on SapienStaking constructor:  NetworkAgnostic("SapienStaking", "1", 3) 
+    chainId: "5", // 3 Ropsten as its hardcoded on SapienStaking constructor:  NetworkAgnostic("SapienStaking", "1", 3) 
     verifyingContract: pAddress,
   };
   return { contract, domainData };
@@ -140,11 +140,11 @@ export const transferWithPurpose = async () => {
 };
 
 export const stake = async () => {
-  const pRecipient = '0x275F9F89B90b127B221ECdef72D9Dd33b4F867eF'; // Staking contract
+  const pRecipient = config.MATIC_SPN_STAKING_CONTRACT; // Staking contract
   const tokenAddress = config.MATIC_SPN_TOKEN; // SPN
 
   const detail = await getContractDetails(biconomyWeb3, tokenAddress);
-  const amount = new bn(2).mul(SCALING_FACTOR);
+  const amount = new bn(100).mul(SCALING_FACTOR);
   console.log('toWei', amount);
   let functionSignature = detail.contract.methods
     .transfer(pRecipient, amount)
@@ -160,8 +160,15 @@ export const getStake = async () => {
   const contract = new biconomyWeb3.eth.Contract(STAKING_CONTRACT_ABI, config.MATIC_SPN_STAKING_CONTRACT);
   const stakedAmount = await contract.methods.getStake(config.FROM_ADDRESS).call();
 
-  console.log(stakedAmount);
   console.log(`stakedAmount for ${config.FROM_ADDRESS} is ${stakedAmount.tokens}`);
+}
+
+export const getPlatformSPNBalance = async () => {
+
+  const contract = new biconomyWeb3.eth.Contract(PLATFORM_SPN_ABI, config.MATIC_SPN_TOKEN);
+  const platformSPN = await contract.methods.balanceOf(config.FROM_ADDRESS).call();
+
+  console.log(`platformSPN for ${config.FROM_ADDRESS} is ${platformSPN}`);
 }
 
 export const unstake = async () => {
@@ -171,7 +178,9 @@ export const unstake = async () => {
 
   let functionSignature = detail.contract.methods.unstake(amount).encodeABI();
   console.log('functionSignature', functionSignature);
-  executeMetaTransaction(functionSignature, detail.contract, detail.domainData);
+  await executeMetaTransaction(functionSignature, detail.contract, detail.domainData)
+    .then(log => console.log('executeMetaTransaction-', log))
+    .catch(err => console.log('err executeMetaTransaction', err));
 }
 
 
