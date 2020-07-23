@@ -1,0 +1,94 @@
+[
+  {
+    "path": "/api/token",
+    "methods": "POST"
+  },
+  {
+    "path": "/api/v1/auctions",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/auctions/summary",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/auctions/:validatorId",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/validators",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/validators/metadata/stakedCount",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/validators/metadata/totalStake",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/validators/:validatorId",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/validators/:validatorId/rewards",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/validators/:validatorId/delegators",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/validators/:validatorId",
+    "methods": "PUT"
+  },
+  {
+    "path": "/api/v1/delegators",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/delegators/:address",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/rewards/summary",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/monitor/matic-staking-ratio",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/monitor/validator-uptime",
+    "methods": "GET"
+  },
+  {
+    "path": " ",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/monitor/checkpoint-signatures/checkpoint/:checkpointNumber",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/monitor/checkpoint-signatures/transactionHash/:transactionHash",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/header/latest",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/header/:headerNumber",
+    "methods": "GET"
+  },
+  {
+    "path": "/api/v1/header/included/:blockNumber",
+    "methods": "GET"
+  },
+  {
+    "path": "/",
+    "methods": "GET"
+  }
+]

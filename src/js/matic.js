@@ -1,5 +1,5 @@
 import Biconomy from "@biconomy/mexa";
-import { PLATFORM_SPN_ABI, STAKING_CONTRACT_ABI } from "../constants";
+import { PLATFORM_SPN_ABI, STAKING_CONTRACT_ABI, CHILD_TOKEN_ABI } from "../constants";
 
 const bn = require('bn.js')
 const Web3 = require("web3");
@@ -20,8 +20,9 @@ const metaTransactionType = [
   { name: "functionSignature", type: "bytes" },
 ];
 
-const SCALING_FACTOR = new bn(10).pow(new bn(6));
-const amount = new bn(1).mul(SCALING_FACTOR);
+const SCALING_FACTOR_SPN = new bn(10).pow(new bn(6));
+
+const SCALING_FACTOR_DUMMY = new bn(10).pow(new bn(18));
 
 window.ethereum.enable().catch((error) => {
   console.log(error);
@@ -30,7 +31,7 @@ const web3 = new Web3(window.ethereum);
 
 console.log(web3.currentProvider);
 
-const biconomy = new Biconomy(new Web3.providers.HttpProvider(config.MATIC_PROVIDER), {
+const biconomy = new Biconomy(new Web3.providers.WebsocketProvider(config.MATIC_PROVIDER_WS), {
   apiKey: config.BICONOMY_API_KEY, 
   debug: true,
 });
@@ -51,7 +52,7 @@ export const initMatic = async () => {
   const MaticPOSClient = require("@maticnetwork/maticjs").MaticPOSClient;
 
   return new MaticPOSClient({
-    maticProvider: config.MATIC_PROVIDER,
+    maticProvider: config.MATIC_PROVIDER_RPC,
     parentProvider: web3.currentProvider,
     posERC20Predicate: config.POS_ERC20_PREDICATE,
     posRootChainManager: config.POS_ROOT_CHAIN_MANAGER_ADDRESS,
@@ -63,7 +64,7 @@ export const approve = async () => {
   const maticPOSClient = await initMatic();
 
   await maticPOSClient
-    .approveERC20ForDeposit('0x0D2be3F144ca1f7c106F586eDA2Ab2F8921f89E6', amount, { from: config.FROM_ADDRESS, onTransactionHash: (hash) => console.log('----onTransactionHash', hash) })
+    .approveERC20ForDeposit(config.MAINNET_SPN_TOKEN, new bn(10).mul(SCALING_FACTOR_SPN), { from: config.FROM_ADDRESS, onTransactionHash: (hash) => console.log('----onTransactionHash', hash) })
     .then(async (logs) => {
       console.log(logs);
     });
@@ -72,7 +73,7 @@ export const approve = async () => {
 export const deposit = async () => {
   const maticPOSClient = await initMatic();
 
-  await maticPOSClient.depositERC20ForUser('0x0D2be3F144ca1f7c106F586eDA2Ab2F8921f89E6', config.FROM_ADDRESS, amount, { from: config.FROM_ADDRESS, gasPrice: '10000000000' })
+  await maticPOSClient.depositERC20ForUser(config.MAINNET_SPN_TOKEN, config.FROM_ADDRESS, new bn(10).mul(SCALING_FACTOR_SPN), { from: config.FROM_ADDRESS, gasPrice: '10000000000' })
     .then(async (logs) => {
       console.log("Deposit: " + logs.transactionHash);
     });
@@ -107,11 +108,11 @@ export const getStakeContractDetails = async (web3, pAddress) => {
 };
 
 export const transfer = async () => {
-  const pRecipient = '0xFCbCCd4d846a59535f1a3eA349b9bC07e800Db4B';
+  const pRecipient = '0x3e8cB4bd04d81498aB4b94a392c334F5328b237b';
   const tokenAddress = config.MATIC_SPN_TOKEN;
 
   const detail = await getContractDetails(biconomyWeb3, tokenAddress);
-  const amount = new bn(1).mul(SCALING_FACTOR);
+  const amount = new bn(50).mul(SCALING_FACTOR_SPN);
   console.log('toWei', amount);
   let functionSignature = detail.contract.methods
     .transfer(pRecipient, amount)
@@ -125,10 +126,10 @@ export const transfer = async () => {
 
 export const transferWithPurpose = async () => {
   const pRecipient = '0xFCbCCd4d846a59535f1a3eA349b9bC07e800Db4B';
-  const tokenAddress = config.MATIC_SPN_TOKEN; // SPN
+  const tokenAddress = config.MATIC_SPN_TOKEN;
 
   const detail = await getContractDetails(biconomyWeb3, tokenAddress);
-  const amount = new bn(2).mul(SCALING_FACTOR);
+  const amount = new bn(2).mul(SCALING_FACTOR_SPN);
   console.log('toWei', amount);
   let functionSignature = detail.contract.methods
     .transferWithPurpose(pRecipient, amount, '0x12345678')
@@ -144,7 +145,7 @@ export const stake = async () => {
   const tokenAddress = config.MATIC_SPN_TOKEN; // SPN
 
   const detail = await getContractDetails(biconomyWeb3, tokenAddress);
-  const amount = new bn(100).mul(SCALING_FACTOR);
+  const amount = new bn(4).mul(SCALING_FACTOR_SPN);
   console.log('toWei', amount);
   let functionSignature = detail.contract.methods
     .transfer(pRecipient, amount)
@@ -171,10 +172,18 @@ export const getPlatformSPNBalance = async () => {
   console.log(`platformSPN for ${config.FROM_ADDRESS} is ${platformSPN}`);
 }
 
+export const getDummyMaticBalance = async () => {
+
+  const contract = new biconomyWeb3.eth.Contract(CHILD_TOKEN_ABI, config.DUMMY_CHILD_TOKEN);
+  const dummy = await contract.methods.balanceOf(config.FROM_ADDRESS).call();
+
+  console.log(`DUMMY for ${config.FROM_ADDRESS} is ${dummy}`);
+}
+
 export const unstake = async () => {
 
   const detail = await getStakeContractDetails(biconomyWeb3, config.MATIC_SPN_STAKING_CONTRACT); 
-  const amount = new bn(10).mul(SCALING_FACTOR);
+  const amount = new bn(4).mul(SCALING_FACTOR_SPN);
 
   let functionSignature = detail.contract.methods.unstake(amount).encodeABI();
   console.log('functionSignature', functionSignature);
@@ -185,12 +194,22 @@ export const unstake = async () => {
 
 
 export const burn = async () => {
-  const tokenAddress = config.MATIC_SPN_TOKEN; // '0xefa67A7B52972eF721a6D6227A3C356a62CcBa58'; // DUMMY V3
+  const tokenAddress = config.MATIC_SPN_TOKEN;
   const detail = await getContractDetails(biconomyWeb3, tokenAddress); // SPN ChildTokenAddress
-  const amount = new bn(1).mul(SCALING_FACTOR);
+  const amount = new bn(5).mul(SCALING_FACTOR_SPN);
   let functionSignature = detail.contract.methods.withdraw(amount).encodeABI();
   console.log('functionSignature', functionSignature);
   executeMetaTransaction(functionSignature, detail.contract, detail.domainData);
+};
+
+export const exit = async () => {
+  const maticPOSClient = await initMatic();
+
+  await maticPOSClient
+  .exitERC20(config.BURN_HASH, { from: config.FROM_ADDRESS, onTransactionHash: (hash) => console.log('----onTransactionHash', hash) })
+  .then(async (logs) => {
+    console.log(logs);
+  });
 };
 
 const executeMetaTransaction = async (
@@ -252,7 +271,7 @@ const executeMetaTransaction = async (
             .send({
               from: userAddress,
             }).on('transactionHash', (hash) => resolve(`executeMetaTransaction transactionHash ${hash}`))
-            .on('error', (err) => reject(`executeMetaTransaction error ${err}`));
+            .on('error', (err) => reject(err));
         }
       }
     );
