@@ -22,14 +22,10 @@ const metaTransactionType = [
 
 const SCALING_FACTOR_SPN = new bn(10).pow(new bn(6));
 
-const SCALING_FACTOR_DUMMY = new bn(10).pow(new bn(18));
-
 window.ethereum.enable().catch((error) => {
   console.log(error);
 });
 const web3 = new Web3(window.ethereum);
-
-console.log(web3.currentProvider);
 
 const biconomy = new Biconomy(new Web3.providers.WebsocketProvider(config.MATIC_PROVIDER_WS), {
   apiKey: config.BICONOMY_API_KEY, 
@@ -40,7 +36,7 @@ const biconomyWeb3 = new Web3(biconomy);
 biconomy
   .onEvent(biconomy.READY, () => {
     // Initialize your dapp here like getting user accounts etc
-    console.log("Mexa is Ready");
+    console.log("Mexa is Ready", biconomy);
   })
   .onEvent(biconomy.ERROR, (error, message) => {
     // Handle error while initializing mexa
@@ -54,8 +50,8 @@ export const initMatic = async () => {
   return new MaticPOSClient({
     maticProvider: config.MATIC_PROVIDER_RPC,
     parentProvider: web3.currentProvider,
-    posERC20Predicate: config.POS_ERC20_PREDICATE,
-    posRootChainManager: config.POS_ROOT_CHAIN_MANAGER_ADDRESS,
+    network: 'mainnet',
+    version: 'v1',
   });
 
 };
@@ -84,11 +80,11 @@ export const getContractDetails = async (web3, pAddress) => {
   const abi = PLATFORM_SPN_ABI;
   const contract = new web3.eth.Contract(abi, pAddress);
   const tokenName = await contract.methods.name().call();
-  console.log(tokenName);
+  console.log('tokenName ', tokenName);
   let domainData = {
     name: tokenName,
     version: "1",
-    chainId: "5",
+    chainId: config.NETWORKD_ID,
     verifyingContract: pAddress,
   };
   return { contract, domainData };
@@ -101,7 +97,7 @@ export const getStakeContractDetails = async (web3, pAddress) => {
   let domainData = {
     name: 'SapienStaking',
     version: "1",
-    chainId: "5", // 3 Ropsten as its hardcoded on SapienStaking constructor:  NetworkAgnostic("SapienStaking", "1", 3) 
+    chainId: config.NETWORKD_ID, // 3 Ropsten as its hardcoded on SapienStaking constructor:  NetworkAgnostic("SapienStaking", "1", 3) 
     verifyingContract: pAddress,
   };
   return { contract, domainData };
@@ -141,20 +137,33 @@ export const transferWithPurpose = async () => {
 };
 
 export const stake = async () => {
-  const pRecipient = config.MATIC_SPN_STAKING_CONTRACT; // Staking contract
-  const tokenAddress = config.MATIC_SPN_TOKEN; // SPN
 
-  const detail = await getContractDetails(biconomyWeb3, tokenAddress);
-  const amount = new bn(4).mul(SCALING_FACTOR_SPN);
+  const detail = await getContractDetails(biconomyWeb3, config.MATIC_SPN_TOKEN);
+  const amount = new bn(2).mul(SCALING_FACTOR_SPN);
   console.log('toWei', amount);
+
   let functionSignature = detail.contract.methods
-    .transfer(pRecipient, amount)
+    .transfer(config.MATIC_SPN_STAKING_CONTRACT, amount)
     .encodeABI();
+
   console.log('functionSignature', functionSignature);
   await executeMetaTransaction(functionSignature, detail.contract, detail.domainData)
     .then(log => console.log('executeMetaTransaction-', log))
     .catch(err => console.log('err executeMetaTransaction', err));
 };
+
+export const unstake = async () => {
+
+  const detail = await getStakeContractDetails(biconomyWeb3, config.MATIC_SPN_STAKING_CONTRACT); 
+  const amount = new bn(2).mul(SCALING_FACTOR_SPN);
+
+  let functionSignature = detail.contract.methods.unstake(amount).encodeABI();
+
+  console.log('functionSignature', functionSignature);
+  await executeMetaTransaction(functionSignature, detail.contract, detail.domainData)
+    .then(log => console.log('executeMetaTransaction-', log))
+    .catch(err => console.log('err executeMetaTransaction', err));
+}
 
 export const getStake = async () => {
 
@@ -179,19 +188,6 @@ export const getDummyMaticBalance = async () => {
 
   console.log(`DUMMY for ${config.FROM_ADDRESS} is ${dummy}`);
 }
-
-export const unstake = async () => {
-
-  const detail = await getStakeContractDetails(biconomyWeb3, config.MATIC_SPN_STAKING_CONTRACT); 
-  const amount = new bn(4).mul(SCALING_FACTOR_SPN);
-
-  let functionSignature = detail.contract.methods.unstake(amount).encodeABI();
-  console.log('functionSignature', functionSignature);
-  await executeMetaTransaction(functionSignature, detail.contract, detail.domainData)
-    .then(log => console.log('executeMetaTransaction-', log))
-    .catch(err => console.log('err executeMetaTransaction', err));
-}
-
 
 export const burn = async () => {
   const tokenAddress = config.MATIC_SPN_TOKEN;
@@ -237,6 +233,7 @@ const executeMetaTransaction = async (
   });
   console.log(domainData);
   console.log(userAddress, dataToSign);
+
   return new Promise((resolve, reject) => {
 
     web3.eth.currentProvider.send(
@@ -247,6 +244,7 @@ const executeMetaTransaction = async (
         params: [userAddress, dataToSign],
       },
       async function (error, response) {
+
         if (error) {
           console.log('sign error', error);
         } else {

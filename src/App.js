@@ -8,7 +8,6 @@ import {
   exit,
   transferWithPurpose,
   getPlatformSPNBalance,
-  getDummyMaticBalance,
   stake,
   unstake,
   getStake
@@ -32,10 +31,6 @@ function App() {
           onClick={() => burn()}
         >BURN</button>
         <br />
-        {/* <button
-          onClick={() => getDummyMaticBalance()}
-        >DUMMY MATIC BALANCE</button>
-        <br /> */}
         <button
           onClick={() => exit()}
         >EXIT</button>
