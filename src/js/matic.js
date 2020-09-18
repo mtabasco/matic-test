@@ -86,7 +86,7 @@ export const getContractDetails = async (web3, pAddress) => {
     name: tokenName,
     version: "1",
     verifyingContract: pAddress,
-    salt: '0x' + config.NETWORKD_ID.toString(16).padStart(64, '0'),
+    salt: web3.utils.fromAscii('0x' + config.NETWORKD_ID.toString(16).padStart(64, '0')),
   };
   return { contract, domainData };
 };
@@ -99,7 +99,7 @@ export const getStakeContractDetails = async (web3, pAddress) => {
     name: 'SapienStaking',
     version: "1",
     verifyingContract: pAddress,
-    salt: '0x' + config.NETWORKD_ID.toString(16).padStart(64, '0'),
+    salt: web3.utils.fromAscii('0x' + config.NETWORKD_ID.toString(16).padStart(64, '0')),
   };
   return { contract, domainData };
 };
