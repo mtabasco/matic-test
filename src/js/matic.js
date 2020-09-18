@@ -1,5 +1,5 @@
 import Biconomy from "@biconomy/mexa";
-import { PLATFORM_SPN_ABI, STAKING_CONTRACT_ABI, CHILD_TOKEN_ABI } from "../constants";
+import { PLATFORM_SPN_ABI, STAKING_CONTRACT_ABI } from "../constants";
 
 const bn = require('bn.js')
 const Web3 = require("web3");
@@ -10,8 +10,9 @@ const config = require('./config')
 const domainType = [
   { name: "name", type: "string" },
   { name: "version", type: "string" },
-  { name: "chainId", type: "uint256" },
   { name: "verifyingContract", type: "address" },
+  { name: "salt", type: "bytes32" },
+  
 ];
 
 const metaTransactionType = [
@@ -84,8 +85,8 @@ export const getContractDetails = async (web3, pAddress) => {
   let domainData = {
     name: tokenName,
     version: "1",
-    chainId: config.NETWORKD_ID,
     verifyingContract: pAddress,
+    salt: '0x' + config.NETWORKD_ID.toString(16).padStart(64, '0'),
   };
   return { contract, domainData };
 };
@@ -97,18 +98,18 @@ export const getStakeContractDetails = async (web3, pAddress) => {
   let domainData = {
     name: 'SapienStaking',
     version: "1",
-    chainId: config.NETWORKD_ID, // 3 Ropsten as its hardcoded on SapienStaking constructor:  NetworkAgnostic("SapienStaking", "1", 3) 
     verifyingContract: pAddress,
+    salt: '0x' + config.NETWORKD_ID.toString(16).padStart(64, '0'),
   };
   return { contract, domainData };
 };
 
 export const transfer = async () => {
-  const pRecipient = '0x3e8cB4bd04d81498aB4b94a392c334F5328b237b';
+  const pRecipient = '0xF86B30C63E068dBB6bdDEa6fe76bf92F194Dc53c';
   const tokenAddress = config.MATIC_SPN_TOKEN;
 
   const detail = await getContractDetails(biconomyWeb3, tokenAddress);
-  const amount = new bn(50).mul(SCALING_FACTOR_SPN);
+  const amount = new bn(2).mul(SCALING_FACTOR_SPN);
   console.log('toWei', amount);
   let functionSignature = detail.contract.methods
     .transfer(pRecipient, amount)
@@ -181,14 +182,6 @@ export const getPlatformSPNBalance = async () => {
   console.log(`platformSPN for ${config.FROM_ADDRESS} is ${platformSPN}`);
 }
 
-export const getDummyMaticBalance = async () => {
-
-  const contract = new biconomyWeb3.eth.Contract(CHILD_TOKEN_ABI, config.DUMMY_CHILD_TOKEN);
-  const dummy = await contract.methods.balanceOf(config.FROM_ADDRESS).call();
-
-  console.log(`DUMMY for ${config.FROM_ADDRESS} is ${dummy}`);
-}
-
 export const burn = async () => {
   const tokenAddress = config.MATIC_SPN_TOKEN;
   const detail = await getContractDetails(biconomyWeb3, tokenAddress); // SPN ChildTokenAddress
@@ -220,7 +213,6 @@ const executeMetaTransaction = async (
   message.nonce = parseInt(nonce);
   message.from = userAddress;
   message.functionSignature = functionSignature;
-  message.network = "Interact with Matic Network";
 
   const dataToSign = JSON.stringify({
     types: {
