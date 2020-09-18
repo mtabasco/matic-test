@@ -21,11 +21,11 @@ module.exports = {
   MATIC_PROVIDER_RPC: 'https://rpc-mainnet.matic.network',
   MATIC_PROVIDER_WS: 'wss://ws-mainnet.matic.network', // This is the MATIC testnet RPC
   PARENT_PROVIDER: 'https://mainnet.infura.io/v3/70645f042c3a409599c60f96f6dd9fbc', // This is the Mainnet testnet RPC
-  FROM_ADDRESS: '0x63545eD8189fe96762Ec32f151e6A51E6B36F312', // Your address
+  FROM_ADDRESS: '<->', // Your address
   MAINNET_SPN_TOKEN: '0x20f7a3ddf244dc9299975b4da1c39f8d5d75f05a', // Mainnet SPN
   MATIC_SPN_TOKEN: '0xeAb9Cfb094db203e6035c2e7268A86DEbeD5BD14', // Matic mainnet SPN
   MATIC_SPN_STAKING_CONTRACT: '0xB04A7a9074EbEE588115a690F18231206AEe6AF2', // Matic mainnet Staking
-  BICONOMY_API_KEY: 'pQ1Z6RGoB.def61969-2863-4a9b-98a4-d2c50fa2b8a0',
+  BICONOMY_API_KEY: '<->',
 
   BURN_HASH: '',
 }
