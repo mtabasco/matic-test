@@ -17,15 +17,15 @@
 
 // Mainnet config
 module.exports = {
-  NETWORKD_ID: '1',
+  NETWORKD_ID: 137,
   MATIC_PROVIDER_RPC: 'https://rpc-mainnet.matic.network',
   MATIC_PROVIDER_WS: 'wss://ws-mainnet.matic.network', // This is the MATIC testnet RPC
   PARENT_PROVIDER: 'https://mainnet.infura.io/v3/70645f042c3a409599c60f96f6dd9fbc', // This is the Mainnet testnet RPC
-  FROM_ADDRESS: '<->', // Your address
-  MAINNET_SPN_TOKEN: '0x20f7a3ddf244dc9299975b4da1c39f8d5d75f05a', // Mainnet SPN
-  MATIC_SPN_TOKEN: '0xeAb9Cfb094db203e6035c2e7268A86DEbeD5BD14', // Matic mainnet SPN
-  MATIC_SPN_STAKING_CONTRACT: '0xB04A7a9074EbEE588115a690F18231206AEe6AF2', // Matic mainnet Staking
-  BICONOMY_API_KEY: '<->',
+  FROM_ADDRESS: '0x63545eD8189fe96762Ec32f151e6A51E6B36F312', // Your address
+  MAINNET_SPN_TOKEN: '0x...', // Mainnet SPN
+  MATIC_SPN_TOKEN: '0x3Cd92Be3Be24daf6D03c46863f868F82D74905bA', // Matic mainnet SPN
+  MATIC_SPN_STAKING_CONTRACT: '0x016ba77341b2F549Cb06E499AD04247F95365f51', // Matic mainnet Staking
+  BICONOMY_API_KEY: '--',
 
   BURN_HASH: '',
 }
