@@ -10,9 +10,8 @@ const config = require('./config')
 const domainType = [
   { name: "name", type: "string" },
   { name: "version", type: "string" },
-  { name: "salt", type: "bytes32" },
   { name: "verifyingContract", type: "address" },
-  
+  { name: "salt", type: "bytes32" },
 ];
 
 const metaTransactionType = [
@@ -51,8 +50,10 @@ export const initMatic = async () => {
   return new MaticPOSClient({
     maticProvider: config.MATIC_PROVIDER_RPC,
     parentProvider: web3.currentProvider,
-    network: 'mainnet',
-    version: 'v1',
+    network: config.NETWORKD_ID === 137 ? 'mainnet': 'testnet',
+    version: config.NETWORKD_ID === 137 ? 'v1' : 'mumbai',
+    parentDefaultOptions: { from: config.FROM_ADDRESS }, // optional, can also be sent as last param while sending tx
+    maticDefaultOptions: { from: config.FROM_ADDRESS },
   });
 
 };
@@ -70,12 +71,12 @@ export const approve = async () => {
 export const deposit = async () => {
   const maticPOSClient = await initMatic();
 
-  await maticPOSClient.depositERC20ForUser(config.MAINNET_SPN_TOKEN, config.FROM_ADDRESS, new bn(10).mul(SCALING_FACTOR_SPN), { from: config.FROM_ADDRESS, gasPrice: '10000000000' })
+  await maticPOSClient.depositERC20ForUser(config.MAINNET_SPN_TOKEN, config.FROM_ADDRESS, new bn(10).mul(SCALING_FACTOR_SPN))
     .then(async (logs) => {
       console.log("Deposit: " + logs.transactionHash);
-    });
+    })
+    .catch(err => console.log(err));
 }
-
 
 export const getContractDetails = async (web3, pAddress) => {
   const abi = PLATFORM_SPN_ABI;
